@@ -38,4 +38,4 @@ def add_video(message):
 
 def stop(message):
     hide_markup = telebot.types.ReplyKeyboardRemove(True)
-    ot.send_message(message.from_user.id, '...', reply_markup=hide_markup)
+    Bot.send_message(message.from_user.id, '...', reply_markup=hide_markup)
