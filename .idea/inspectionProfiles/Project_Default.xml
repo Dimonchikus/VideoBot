@@ -14,6 +14,8 @@
       <option name="ignoredIdentifiers">
         <list>
           <option value="bot.bot.*" />
+          <option value="bot.bussines.start" />
+          <option value="bot.bussines.end" />
         </list>
       </option>
     </inspection_tool>
