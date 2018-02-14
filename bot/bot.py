@@ -24,6 +24,13 @@ def download_video(message):
     Flag = False
 
 
+def no_video(message):
+    global Flag
+    Bot.send_message(message.from_user.id, "Your video"+ message+ "hasn't searched")
+    Flag = False
+
+
+
 def generate_video(message):
     global Flag
     Bot.send_message(message.from_user.id, "Your generated video:")
