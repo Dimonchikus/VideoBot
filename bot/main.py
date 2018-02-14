@@ -21,7 +21,7 @@ def handle_text(message):
         bussines.add_video(message)
 
     elif message.text == "generateVideo":
-        bussines.generate_video(message)
+        bussines.generate_video()
 
 
     elif (str(message.text).__contains__('https://www.youtube.com')) and bussines.Flag:
