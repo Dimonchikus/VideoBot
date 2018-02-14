@@ -1,6 +1,7 @@
 import requests
 import telebot
 import pytube
+from selenium import webdriver
 
 Bot = None
 Flag = False
@@ -8,10 +9,12 @@ Flag = False
 
 def get_video(message):
     global Flag
-    zapros = (str(message.text)).replace(' ', '+')
-    url = 'https://www.youtube.com/results?search_query=' + zapros + '&sp=EgIYAQ%253D%253D'
+    request = (str(message.text)).replace(' ', '+')
+    url = 'https://www.youtube.com/results?search_query=' + request + '&sp=EgIYAQ%253D%253D'
     r = requests.get(url)
-    print(r.text)
+    con = (r.content).decode('utf8')
+    print(con)
+    Bot.send_message(message.from_user.id, "Generated video ->")
     Flag = False
 
 
@@ -33,7 +36,6 @@ def no_video(message):
 
 def generate_video(message):
     global Flag
-    Bot.send_message(message.from_user.id, "Your generated video:")
     Flag = True
 
 

@@ -11,6 +11,7 @@ def handle_start(message):
     user_markup.row('addVideo', 'generateVideo', 'stop')
     bot.send_message(message.from_user.id, 'Hello', reply_markup=user_markup)
 
+
 @bot.message_handler(content_types=['text'])
 def handle_text(message):
     if message.text == "stop":
