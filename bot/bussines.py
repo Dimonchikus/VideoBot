@@ -7,15 +7,19 @@ Bot = None
 Flag = False
 
 
+
 def get_video(message):
     global Flag
     request = (str(message.text)).replace(' ', '+')
     url = 'https://www.youtube.com/results?search_query=' + request + '&sp=EgIYAQ%253D%253D'
     r = requests.get(url)
-    con = r.text    #content.decode('utf8')
-    b = bs4.BeautifulSoup(con, "html.parser")
-    print(b.find('h3', {'class': 'title-and-badge style-scope ytd-video-renderer'}))
-    Bot.send_message(message.from_user.id, "Generated video ->")
+    con = str(r.text)    #content.decode('utf8')
+    i=con.find("<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=")
+
+    print(con[i:i+20])
+    # b = bs4.BeautifulSoup(con, "html.parser")
+    # print(b.find('h3', {'class': 'title-and-badge style-scope ytd-video-renderer'}))
+    # Bot.send_message(message.from_user.id, "Generated video ->")
     Flag = False
 
 
@@ -24,7 +28,7 @@ def download_video(message):
     Bot.send_message(message.from_user.id, "Your video has searched")
     pytube.YouTube(message.text).streams \
         .filter(file_extension='mp4') \
-        .first().download('D:\\')
+        .first().download('D:\\Video\\')
     Flag = False
 
 
