@@ -1,7 +1,7 @@
 import requests
 import telebot
 import pytube
-from selenium import webdriver
+import bs4
 
 Bot = None
 Flag = False
@@ -12,8 +12,9 @@ def get_video(message):
     request = (str(message.text)).replace(' ', '+')
     url = 'https://www.youtube.com/results?search_query=' + request + '&sp=EgIYAQ%253D%253D'
     r = requests.get(url)
-    con = (r.content).decode('utf8')
-    print(con)
+    con = r.text    #content.decode('utf8')
+    b = bs4.BeautifulSoup(con, "html.parser")
+    print(b.find('h3', {'class': 'title-and-badge style-scope ytd-video-renderer'}))
     Bot.send_message(message.from_user.id, "Generated video ->")
     Flag = False
 
@@ -23,18 +24,11 @@ def download_video(message):
     Bot.send_message(message.from_user.id, "Your video has searched")
     pytube.YouTube(message.text).streams \
         .filter(file_extension='mp4') \
-        .first().download()
+        .first().download('D:\\')
     Flag = False
 
 
-def no_video(message):
-    global Flag
-    Bot.send_message(message.from_user.id, "Your video"+ message+ "hasn't searched")
-    Flag = False
-
-
-
-def generate_video(message):
+def generate_video():
     global Flag
     Flag = True
 
