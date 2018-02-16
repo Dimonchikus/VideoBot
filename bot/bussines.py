@@ -16,7 +16,7 @@ def get_video(message):
     con = str(r.text)    #content.decode('utf8')
     i=con.find("<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=")
 
-    print(con[i:i+20])
+    url1 = print(con[i+99:i+110])
     # b = bs4.BeautifulSoup(con, "html.parser")
     # print(b.find('h3', {'class': 'title-and-badge style-scope ytd-video-renderer'}))
     # Bot.send_message(message.from_user.id, "Generated video ->")

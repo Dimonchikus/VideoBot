@@ -17,6 +17,7 @@
           <option value="bot.bot.*" />
           <option value="bot.bussines.start" />
           <option value="bot.bussines.end" />
+          <option value="telebot.TeleBot.message_handler" />
         </list>
       </option>
     </inspection_tool>
