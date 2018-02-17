@@ -60,8 +60,10 @@ def get_video(message):
     finish_id = start_id + 11
 
     id = html_code[start_id:finish_id]  # 2800+len 2802+len
-    print(html_code[start_id+2800+len(req):finish_id+2800+len(req)])
-    print(html_code[start_id:finish_id + 4010+(len(req)*30)])
+   # print('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\''+html_code)
+    print('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\''+html_code[start_id:finish_id+ 4310+(len(req)*30)])
+    print('--------------------------------------------------');
+    print(html_code[start_id+4041:finish_id+4041])
     g_url = 'https://www.youtube.com/watch?v=' + id
 
     if id == 't-face{font':
