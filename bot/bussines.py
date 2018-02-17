@@ -58,10 +58,13 @@ def get_video(message):
 
     start_id = i + 99
     finish_id = start_id + 11
-
     id = html_code[start_id:finish_id]  # 2800+len 2802+len
+
+    i_2 = html_code.find("<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=",start_id,html_code.__len__())
+    start_id_2 = i_2 + 99
+    finish_id_2 = start_id_2 + 11
    # print('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\''+html_code)
-    print('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\''+html_code[start_id:finish_id+ 4310+(len(req)*30)])
+    print(html_code[start_id_2:finish_id_2])
     print('--------------------------------------------------');
     print(html_code[start_id+4041:finish_id+4041])
     g_url = 'https://www.youtube.com/watch?v=' + id
