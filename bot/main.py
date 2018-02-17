@@ -21,10 +21,10 @@ def handle_text(message):
     elif message.text == "Generate Video":
         bussines.generate_video(message)
 
-    elif (str(message.text).__contains__('https://www.youtube.com')) and bussines.Flag:
+    elif (str(message.text).__contains__('https://www.youtube.com')) and bussines.Flag_Add:
         bussines.download_video(message)
 
-    elif bussines.Flag:
+    elif bussines.Flag_Generate:
         bussines.get_video(message)
 
     else:

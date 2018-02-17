@@ -3,35 +3,35 @@ import telebot
 import pytube
 
 Bot = None
-Flag = False
-Panel_Flag = False
+Flag_Generate = False
+Flag_Add = False
+Flag_Next = True
+Flag_Panel = False
 start_id = 0
-finish_id = -1
 html_code = ''
-req = ''
 
 
 def start(message):
     global Bot
     user_markup = telebot.types.ReplyKeyboardMarkup(True)
     user_markup.row('Add Video', 'Generate Video', 'stop')
-    Bot.send_message(message.from_user.id, 'Hello', reply_markup=user_markup)
+    Bot.send_message(message.from_user.id, '>>>', reply_markup=user_markup)
     print('start')
 
 
 def generate_video(message):
     global Bot
-    global Flag
+    global Flag_Generate
     Bot.send_message(message.from_user.id, "Enter your request:")
-    Flag = True
+    Flag_Generate = True
     print('generated video')
 
 
 def add_video(message):
     global Bot
-    global Flag
+    global Flag_Add
     Bot.send_message(message.from_user.id, "Add link to your video:")
-    Flag = True
+    Flag_Add = True
     print('add video')
 
 
@@ -43,30 +43,17 @@ def stop(message):
 
 def get_video(message):
     global Bot
-    global Flag
+    global Flag_Generate
+    global Flag_Panel
     global html_code
-    global req
     global start_id
-    global finish_id
-    req = str(message.text)
     request = (str(message.text)).replace(' ', '+')
     url = 'https://www.youtube.com/results?search_query=' + request + '&sp=EgIYAQ%253D%253D'
     r = requests.get(url)
+
     html_code = str(r.text)
-    i = html_code.find(
-        "<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=")
-
-    start_id = i + 99
-    finish_id = start_id + 11
-    id = html_code[start_id:finish_id]  # 2800+len 2802+len
-
-    i_2 = html_code.find("<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=",start_id,html_code.__len__())
-    start_id_2 = i_2 + 99
-    finish_id_2 = start_id_2 + 11
-   # print('\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\''+html_code)
-    print(html_code[start_id_2:finish_id_2])
-    print('--------------------------------------------------');
-    print(html_code[start_id+4041:finish_id+4041])
+    start_id = get_id(html_code)
+    id = html_code[start_id:start_id + 11]
     g_url = 'https://www.youtube.com/watch?v=' + id
 
     if id == 't-face{font':
@@ -74,48 +61,56 @@ def get_video(message):
     else:
         Bot.send_message(message.from_user.id, "Generated video ->")
         Bot.send_message(message.from_user.id, g_url)
-    Flag = False
-    Panel_Flag = True
     user_markup = telebot.types.ReplyKeyboardMarkup(True)
-    user_markup.row('Next', 'Previous', 'Close')
-    Bot.send_message(message.from_user.id, 'Next', reply_markup=user_markup)
+    user_markup.row('Next', 'Close')
+    Bot.send_message(message.from_user.id, 'You may get next one', reply_markup=user_markup)
+    Flag_Generate = False
+    Flag_Panel = True
     print('get video')
 
 
 def download_video(message):
-    global Flag
+    global Flag_Add
     Bot.send_message(message.from_user.id, "Your video has searched")
     print('downloading...')
     pytube.YouTube(message.text).streams \
         .filter(file_extension='mp4') \
         .first().download('D:\\Video\\')
-    Flag = False
+    Flag_Add = False
     Bot.send_message(message.from_user.id, "Your video is saved")
     print('...downloaded')
 
 
 def other(message):
     global Bot
-    global Panel_Flag
-    global Flag
+    global Flag_Panel
+    global Flag_Next
     global html_code
-    global req
-    if (message.text == 'Next') and (Panel_Flag == True):
-        i = html_code.find(
-            "<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=")
-        id = html_code[i + 2800 + len(req):i + 2812 + len(req)]  # 2800+len 2812+len
-        g_url = 'https://www.youtube.com/watch?v=' + id
-        if id == 't-face{font':
-            Bot.send_message(message.from_user.id, "Video not found")
-        else:
-            Bot.send_message(message.from_user.id, "Generated video ->")
-            Bot.send_message(message.from_user.id, g_url)
-        print('next')
+    global start_id
+    if Flag_Panel:
+        if (message.text == 'Next') and Flag_Next:
+            start_id += get_id(html_code[start_id:-1])
+            id = html_code[start_id:start_id + 11]
+            if id == 'div class=\"':
+                Flag_Next = False
+                Bot.send_message(message.from_user.id, 'You have reached the limit video ')
+            else:
+                g_url = 'https://www.youtube.com/watch?v=' + id
+                Bot.send_message(message.from_user.id, g_url)
+            print('next')
 
-    elif message.text == 'Previous':
-        print('previous')
+        elif message.text == 'Close':
+            Flag_Panel = False
+            Flag_Next = True
+            start(message)
+            print('close')
+    if Flag_Add:
+        print("There is no such video")
+        Bot.send_message(message.from_user.id, 'There is no such video')
 
-    elif message.text == 'Close':
-        Panel_Flag = False
-        start(message)
-        print('close')
+
+def get_id(html):
+    id = html.find(
+        "<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=")
+    id += 99
+    return id
