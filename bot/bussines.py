@@ -1,6 +1,7 @@
 import requests
 import telebot
 import pytube
+import lxml.html
 
 Bot = None
 Flag_Generate = False
@@ -114,3 +115,16 @@ def get_id(html):
         "<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=")
     id += 99
     return id
+
+
+def get_name_video(url):
+    try:
+        r = requests.get(url)
+    except requests.ConnectionError:
+        return
+    if not (r.status_code < 400):
+        return
+    html_tree = lxml.html.fromstring(r.content)
+    path = ".//yt-formatted-string[@class='style-scope ytd-video-primary-info-renderer']"
+    name_video = html_tree.xpath(path).text_content()
+    return name_video
