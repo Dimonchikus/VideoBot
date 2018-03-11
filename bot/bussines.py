@@ -1,12 +1,13 @@
 import requests
 import telebot
 import pytube
-
+import lxml.html
 Bot = None
 Flag_Generate = False
 Flag_Add = False
 Flag_Next = True
 Flag_Panel = False
+Flag_Get_List = False;
 start_id = 0
 html_code = ''
 
@@ -77,6 +78,7 @@ def download_video(message):
         .filter(file_extension='mp4') \
         .first().download('D:\\Video\\')
     Flag_Add = False
+    with open('bd.db')
     Bot.send_message(message.from_user.id, "Your video is saved")
     print('...downloaded')
 
@@ -107,6 +109,9 @@ def other(message):
     if Flag_Add:
         print("There is no such video")
         Bot.send_message(message.from_user.id, 'There is no such video')
+
+def get_list(message):
+
 
 
 def get_id(html):
