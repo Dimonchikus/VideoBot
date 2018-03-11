@@ -2,12 +2,12 @@ import requests
 import telebot
 import pytube
 import lxml.html
+
 Bot = None
 Flag_Generate = False
 Flag_Add = False
 Flag_Next = True
 Flag_Panel = False
-Flag_Get_List = False;
 start_id = 0
 html_code = ''
 
@@ -78,7 +78,6 @@ def download_video(message):
         .filter(file_extension='mp4') \
         .first().download('D:\\Video\\')
     Flag_Add = False
-    with open('bd.db')
     Bot.send_message(message.from_user.id, "Your video is saved")
     print('...downloaded')
 
@@ -110,12 +109,22 @@ def other(message):
         print("There is no such video")
         Bot.send_message(message.from_user.id, 'There is no such video')
 
-def get_list(message):
-
-
 
 def get_id(html):
     id = html.find(
         "<li><div class=\"yt-lockup yt-lockup-tile yt-lockup-video vve-check clearfix\" data-context-item-id=")
     id += 99
     return id
+
+
+def get_name_video(url):
+    try:
+        r = requests.get(url)
+    except requests.ConnectionError:
+        return
+    if not (r.status_code < 400):
+        return
+    html_tree = lxml.html.fromstring(r.content)
+    path = ".//yt-formatted-string[@class='style-scope ytd-video-primary-info-renderer']"
+    name_video = html_tree.xpath(path).text_content()
+    return name_video
