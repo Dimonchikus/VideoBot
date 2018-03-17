@@ -2,6 +2,7 @@ import requests
 import telebot
 import pytube
 import lxml.html
+import os
 
 Bot = None
 Flag_Generate = False
@@ -74,9 +75,13 @@ def download_video(message):
     global Flag_Add
     Bot.send_message(message.from_user.id, "Your video has searched")
     print('downloading...')
+    old_name = (get_name_video(message.text)[:-10])
+    new_name = message.text[32:]
     pytube.YouTube(message.text).streams \
         .filter(file_extension='mp4') \
-        .first().download('D:\\Video\\')
+        .first() \
+        .download('..\\Video\\')
+    os.renames('..\\Video\\' + old_name + '.mp4', '..\\Video\\' + new_name + '.mp4')
     Flag_Add = False
     Bot.send_message(message.from_user.id, "Your video is saved")
     print('...downloaded')
@@ -118,13 +123,8 @@ def get_id(html):
 
 
 def get_name_video(url):
-    try:
-        r = requests.get(url)
-    except requests.ConnectionError:
-        return
-    if not (r.status_code < 400):
-        return
-    html_tree = lxml.html.fromstring(r.content)
-    path = ".//yt-formatted-string[@class='style-scope ytd-video-primary-info-renderer']"
-    name_video = html_tree.xpath(path).text_content()
-    return name_video
+    r = requests.get(url)
+    html_tree = lxml.html.fromstring(r.text)
+    path = ".//title"
+    name_video = html_tree.xpath(path)[0]
+    return name_video.text_content()
