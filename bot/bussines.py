@@ -128,3 +128,11 @@ def get_name_video(url):
     path = ".//title"
     name_video = html_tree.xpath(path)[0]
     return name_video.text_content()
+
+
+def admin_checker(message):
+    with open('..\\admins') as fio:
+        for line in fio:
+            if message.from_user.id == line.strip():
+                return True
+    return False
