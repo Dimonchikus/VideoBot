@@ -114,7 +114,7 @@ def download_video(message):
             pytube.YouTube(message.text).streams \
                 .filter(file_extension='mp4') \
                 .first() \
-                .download('..\\Video\\')
+                .download('..\\Video\\',new_name)
             print('...downloaded')
         except FileExistsError:
             Bot.send_message(message.from_user.id, "This video has already been added to the list")
