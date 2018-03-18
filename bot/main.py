@@ -7,7 +7,7 @@ bussines.Bot = telebot.TeleBot(constants.token)
 
 @bussines.Bot.message_handler(commands=['start'])
 def handle_start(message):
-    if bussines.admin_checker(message):
+    if bussines.user_checker(message.from_user.id):
         bussines.start(message)
     else:
         bussines.Bot.send_message(message.from_user.id, 'You do not have permissions')
@@ -15,7 +15,7 @@ def handle_start(message):
 
 @bussines.Bot.message_handler(content_types=['text'])
 def handle_text(message):
-    if bussines.admin_checker(message):
+    if bussines.user_checker(message.from_user.id):
         if message.text == "stop":
             bussines.stop(message)
 
@@ -31,14 +31,23 @@ def handle_text(message):
         elif bussines.Flag_Generate:
             bussines.get_video(message)
 
+        elif message.text == "add_new_admin":
+            bussines.Bot.send_message(message.from_user.id, 'Send contact of new user')
+            bussines.Flag_Admin = True
+
         else:
             bussines.other(message)
     else:
         bussines.Bot.send_message(message.from_user.id, 'You do not have permissions')
 
 
+@bussines.Bot.message_handler(content_types=['contact'])
+def handle_text(message):
+    if bussines.Flag_Admin:
+        bussines.add_new_admin(message, message.contact.user_id)
+
+
 try:
-    b = bussines.Bot.polling(none_stop=True, interval=0)
-    print(b)
+    bussines.Bot.polling(none_stop=True, interval=0)
 except ConnectionError:
     print("Aborted Connection")

@@ -9,6 +9,7 @@ Flag_Generate = False
 Flag_Add = False
 Flag_Next = True
 Flag_Panel = False
+Flag_Admin = False
 start_id = 0
 html_code = ''
 
@@ -130,9 +131,27 @@ def get_name_video(url):
     return name_video.text_content()
 
 
-def admin_checker(message):
-    with open('..\\admins') as fio:
-        for line in fio:
-            if message.from_user.id == line.strip():
-                return True
-    return False
+def user_checker(user_id):
+    rez = False
+    if user_id == 417755355:
+        rez = True
+    else:
+        with open('..\\admins') as fio:
+            for line in fio:
+                admin_id = str(line.split('|-|')[0])
+                user_id = str(user_id)
+                if user_id == admin_id.strip():
+                    rez = True
+    return rez
+
+
+def add_new_admin(message, user_id):
+    if user_checker(user_id):
+        Bot.send_message(message.from_user.id, "This user is an admin already")
+    else:
+        if user_id is None:
+            user_id = 0
+        with open('..\\admins', 'a') as fos:
+            fos.write(str(user_id) + "\n")
+    Bot.send_message(message.from_user.id, "The contact has been added to the administrator list")
+    Flag_Admin = False
