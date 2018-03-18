@@ -42,7 +42,7 @@ def handle_text(message):
             bussines.Bot.send_message(message.from_user.id, 'Send contact of new user')
             bussines.Flag_Admin = True
 
-        elif bussines.Flag_Delete and ((re.match(r'^/[0-9]'),message) or (re.match(r'^/[0-9][0-9]'),message)):
+        elif bussines.Flag_Delete and ((re.match(r'^/[0-9]',str(message.text))) or (re.match(r'^/[0-9][0-9]',str(message.text)))):
             bussines.delete_video(message)
 
         elif bussines.Flag_Priority and re.match(r'1', message.text):

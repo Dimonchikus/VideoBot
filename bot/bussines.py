@@ -77,25 +77,35 @@ def get_video(message):
 
 def download_video(message):
     global Flag_Add
-    Bot.send_message(message.from_user.id, "Your video has searched")
-    print('downloading...')
-    with open('list.files', 'a', encoding='utf8') as f:
-        f.write(get_name_video(message.text) + '\n' + str(message.text) + '\n')
-    old_name = (get_name_video(message.text)[:-10])
-    new_name = message.text[32:]
-    try:
-        pytube.YouTube(message.text).streams \
-            .filter(file_extension='mp4') \
-            .first() \
-            .download('..\\Video\\')
-        print('...downloaded')
-    except FileExistsError:
-        Bot.send_message(message.from_user.id, "This video has already been added to the list")
-    user_markup = telebot.types.ReplyKeyboardMarkup(True)
-    user_markup.row('1', '2', '3', '4', '5')
-    Bot.send_message(message.from_user.id, "Set the priority of the video", reply_markup=user_markup)
+    Flag = True
+    with open('list.files', 'r', encoding='utf8') as fio:
+        with open('list.files', 'a', encoding='utf8') as f:
+            for i in fio:
+                if i.strip().__contains__(message.text):
+                    Flag = False
+            if Flag:
+                f.write(get_name_video(message.text) + '\n' + str(message.text) + '\n')
+            else:
+                Bot.send_message(message.from_user.id, "You have already had that video")
+    if Flag:
+        Bot.send_message(message.from_user.id, "Your video has searched\nDownloading...")
+        print('downloading...')
 
-    Flag_Add = False
+        old_name = (get_name_video(message.text)[:-10])
+        new_name = message.text[32:]
+        try:
+            pytube.YouTube(message.text).streams \
+                .filter(file_extension='mp4') \
+                .first() \
+                .download('..\\Video\\')
+            print('...downloaded')
+        except FileExistsError:
+            Bot.send_message(message.from_user.id, "This video has already been added to the list")
+        user_markup = telebot.types.ReplyKeyboardMarkup(True)
+        user_markup.row('1', '2', '3', '4', '5')
+        Bot.send_message(message.from_user.id, "Set the priority of the video", reply_markup=user_markup)
+
+        Flag_Add = False
 
 
 def other(message):
@@ -199,4 +209,4 @@ def admin_checker(message):
 
 
 def delete_video(message):
-    return None
+    Bot.send_message(message.from_user.id, str(message.text))
