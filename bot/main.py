@@ -26,8 +26,14 @@ def handle_text(message):
         elif message.text == "Generate Video":
             bussines.generate_video(message)
 
+        elif message.text == "Videos\' list":
+            bussines.list_video(message)
+
+        elif message.text == "Delete Video":
+            bussines.delete_video_choise(message)
+
         elif (str(message.text).__contains__('https://www.youtube.com')) and bussines.Flag_Add:
-            bussines.download_video(message)
+                bussines.download_video(message)
 
         elif bussines.Flag_Generate:
             bussines.get_video(message)
@@ -35,6 +41,9 @@ def handle_text(message):
         elif message.text == "add_new_admin":
             bussines.Bot.send_message(message.from_user.id, 'Send contact of new user')
             bussines.Flag_Admin = True
+
+        elif bussines.Flag_Delete and ((re.match(r'^/[0-9]'),message) or (re.match(r'^/[0-9][0-9]'),message)):
+            bussines.delete_video(message)
 
         elif bussines.Flag_Priority and re.match(r'1', message.text):
             print("lol")
