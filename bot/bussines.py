@@ -13,9 +13,11 @@ Flag_Panel = False
 Flag_Admin = False
 Flag_Priority = False
 Flag_Delete = False
+Flag_Final_Removing = False
 start_id = 0
 html_code = ''
 count_of_video = 0
+deleted_video_id = ''
 
 
 def start(message):
@@ -163,7 +165,7 @@ def get_name_video(url):
     html_tree = lxml.html.fromstring(r.text)
     path = ".//title"
     name_video = html_tree.xpath(path)[0]
-    return str(name_video.text_content()).replace(' - YouTube', '')
+    return str(name_video.text_content()).replace(' - YouTube','')
 
 
 def user_checker(user_id):
@@ -220,6 +222,48 @@ def admin_checker(message):
             if message.from_user.id == line.strip():
                 return True
     return False
+
+
+def delete_video(message):
+    global deleted_video_id
+    number = int(message.text[1])*2
+    iterator = 1;
+    with open('list.files', 'r', encoding='utf8') as f:
+        for i in f:
+             if(iterator == number):
+                 Bot.send_message(message.from_user.id, 'Remove this video?')
+                 deleted_video_id = i.strip()
+                 Bot.send_message(message.from_user.id,deleted_video_id)
+             iterator += 1
+    global Flag_Final_Removing
+    Flag_Final_Removing = True
+    global Flag_Delete
+    Flag_Delete = False
+    user_markup = telebot.types.ReplyKeyboardMarkup(True)
+    user_markup.row('Delete', 'Leave')
+    Bot.send_message(message.from_user.id, "Make a choice", reply_markup=user_markup)
+
+
+def final_removing(message):
+    global deleted_video_id
+    list_of_video = list_video(message)
+    list_of_new_video = ''
+    if (str(message.text) == 'Delete'):
+        Bot.send_message(message.from_user.id, 'Removing')
+        os.remove('..\\Video\\' + str(deleted_video_id[-11:]) + '.mp4')
+        for i in list_of_video:
+            s = i.strip()
+            if not ((s == get_name_video(deleted_video_id)) or (s == deleted_video_id)):
+                 list_of_new_video += i + '\n'
+            with open('list.files', 'w', encoding='utf8') as f:
+                f.write( list_of_new_video)
+        Bot.send_message(message.from_user.id, 'Done')
+        start(message)
+    elif (str(message.text) == 'Leave'):
+        start(message)
+    global Flag_Final_Removing
+    Flag_Final_Removing = False
+    return deleted_video_id[-11:]
 
 
 def set_prioritys(message):

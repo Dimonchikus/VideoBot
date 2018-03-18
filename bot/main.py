@@ -47,6 +47,10 @@ def handle_text(message):
 
         elif bussines.Flag_Priority and re.match(r'^[1-5]$', message.text):
             bussines.set_prioritys(message)
+
+        elif bussines.Flag_Final_Removing:
+            bussines.final_removing(message)
+
         else:
             bussines.other(message)
     else:
