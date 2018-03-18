@@ -45,6 +45,9 @@ def handle_text(message):
         elif bussines.Flag_Delete and ((re.match(r'^/[0-9]',str(message.text))) or (re.match(r'^/[0-9][0-9]',str(message.text)))):
             bussines.delete_video(message)
 
+        elif bussines.Flag_Final_Removing:
+            bussines.final_removing(message)
+
         elif bussines.Flag_Priority and re.match(r'1', message.text):
             print("lol")
         else:
