@@ -3,6 +3,7 @@ import telebot
 import pytube
 import lxml.html
 import os
+from bot import constants
 
 Bot = None
 Flag_Generate = False
@@ -10,6 +11,7 @@ Flag_Add = False
 Flag_Next = True
 Flag_Panel = False
 Flag_Admin = False
+Flag_Priority = False
 start_id = 0
 html_code = ''
 
@@ -76,16 +78,22 @@ def download_video(message):
     global Flag_Add
     Bot.send_message(message.from_user.id, "Your video has searched")
     print('downloading...')
+
     old_name = (get_name_video(message.text)[:-10])
     new_name = message.text[32:]
-    pytube.YouTube(message.text).streams \
-        .filter(file_extension='mp4') \
-        .first() \
-        .download('..\\Video\\')
-    os.renames('..\\Video\\' + old_name + '.mp4', '..\\Video\\' + new_name + '.mp4')
+    try:
+        pytube.YouTube(message.text).streams \
+            .filter(file_extension='mp4') \
+            .first() \
+            .download('..\\Video\\')
+        print('...downloaded')
+    except FileExistsError:
+        Bot.send_message(message.from_user.id, "This video has already been added to the list")
+    user_markup = telebot.types.ReplyKeyboardMarkup(True)
+    user_markup.row('1', '2', '3', '4', '5')
+    Bot.send_message(message.from_user.id, "Set the priority of the video", reply_markup=user_markup)
+
     Flag_Add = False
-    Bot.send_message(message.from_user.id, "Your video is saved")
-    print('...downloaded')
 
 
 def other(message):
@@ -133,12 +141,12 @@ def get_name_video(url):
 
 def user_checker(user_id):
     rez = False
-    if user_id == 417755355:
+    if user_id == constants.gorbenko or user_id == constants.rumsha:
         rez = True
     else:
-        with open('..\\admins') as fio:
+        with open('..\\.admins') as fio:
             for line in fio:
-                admin_id = str(line.split('|-|')[0])
+                admin_id = str(line.split)
                 user_id = str(user_id)
                 if user_id == admin_id.strip():
                     rez = True
@@ -150,8 +158,9 @@ def add_new_admin(message, user_id):
         Bot.send_message(message.from_user.id, "This user is an admin already")
     else:
         if user_id is None:
-            user_id = 0
-        with open('..\\admins', 'a') as fos:
+            Bot.send_message(message.from_user.id, "This user is an admin already")
+            return
+        with open('..\\.admins', 'a') as fos:
             fos.write(str(user_id) + "\n")
     Bot.send_message(message.from_user.id, "The contact has been added to the administrator list")
     Flag_Admin = False

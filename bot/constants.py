@@ -1,2 +1,3 @@
-
 token = "492444477:AAHedxtiBZCSg4AeXDk93zCayFQ5cGDDq3Y"
+gorbenko = 417755355
+rumsha = 233100225

@@ -1,6 +1,7 @@
 import telebot
 from bot import bussines
 from bot import constants
+import re
 
 bussines.Bot = telebot.TeleBot(constants.token)
 
@@ -35,6 +36,8 @@ def handle_text(message):
             bussines.Bot.send_message(message.from_user.id, 'Send contact of new user')
             bussines.Flag_Admin = True
 
+        elif bussines.Flag_Priority and re.match(r'1', message.text):
+            print("lol")
         else:
             bussines.other(message)
     else:
