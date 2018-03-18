@@ -175,6 +175,8 @@ def list_video(message):
 def delete_video_choise(message):
     Bot.send_message(message.from_user.id,'Choise video for removing:')
     list_video(message)
+    global Flag_Delete
+    Flag_Delete = True
   #  for i in list:
      #   if i[1] == message.text[1]:
 
@@ -187,3 +189,6 @@ def admin_checker(message):
                 return True
     return False
 
+
+def delete_video(message):
+    return None
