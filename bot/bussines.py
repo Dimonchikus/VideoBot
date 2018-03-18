@@ -10,6 +10,7 @@ Flag_Add = False
 Flag_Next = True
 Flag_Panel = False
 Flag_Admin = False
+Flag_Delete = False
 start_id = 0
 html_code = ''
 
@@ -17,7 +18,7 @@ html_code = ''
 def start(message):
     global Bot
     user_markup = telebot.types.ReplyKeyboardMarkup(True)
-    user_markup.row('Add Video', 'Generate Video', 'stop')
+    user_markup.row('Add Video', 'Generate Video','Videos\' list','Delete Video','stop')
     Bot.send_message(message.from_user.id, '>>>', reply_markup=user_markup)
     print('start')
 
@@ -76,6 +77,8 @@ def download_video(message):
     global Flag_Add
     Bot.send_message(message.from_user.id, "Your video has searched")
     print('downloading...')
+    with open('list.files', 'a', encoding='utf8') as f:
+        f.write(get_name_video(message.text) + '\n' + str(message.text) + '\n')
     old_name = (get_name_video(message.text)[:-10])
     new_name = message.text[32:]
     pytube.YouTube(message.text).streams \
@@ -128,26 +131,25 @@ def get_name_video(url):
     html_tree = lxml.html.fromstring(r.text)
     path = ".//title"
     name_video = html_tree.xpath(path)[0]
-    return name_video.text_content()
+    return str(name_video.text_content()).replace(' - YouTube','')
 
 
 def user_checker(user_id):
     rez = False
-    if user_id == 417755355:
+    if user_id == 417755355 or user_id == 233100225:
         rez = True
     else:
         with open('..\\admins') as fio:
             for line in fio:
-                admin_id = str(line.split('|-|')[0])
                 user_id = str(user_id)
-                if user_id == admin_id.strip():
+                if user_id == line.strip():
                     rez = True
     return rez
 
 
 def add_new_admin(message, user_id):
     if user_checker(user_id):
-        Bot.send_message(message.from_user.id, "This user is an admin already")
+        Bot.send_message(message.from_user.id, "This user is already an admin ")
     else:
         if user_id is None:
             user_id = 0
@@ -155,3 +157,33 @@ def add_new_admin(message, user_id):
             fos.write(str(user_id) + "\n")
     Bot.send_message(message.from_user.id, "The contact has been added to the administrator list")
     Flag_Admin = False
+
+def list_video(message):
+    list_of_video = ''
+    j = int(2)
+    k = 1
+    with open('list.files', 'r', encoding='utf8') as f:
+         for i in f:
+            if int(j) % 2 == 0:
+               list_of_video += '/' + str(k) + ' ' + i.strip() + '\n'
+               k += 1
+            j += 1
+    Bot.send_message(message.from_user.id, list_of_video)
+
+
+
+def delete_video_choise(message):
+    Bot.send_message(message.from_user.id,'Choise video for removing:')
+    list_video(message)
+  #  for i in list:
+     #   if i[1] == message.text[1]:
+
+
+
+def admin_checker(message):
+    with open('..\\admins') as fio:
+        for line in fio:
+            if message.from_user.id == line.strip():
+                return True
+    return False
+
