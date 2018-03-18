@@ -15,6 +15,7 @@ Flag_Priority = False
 Flag_Delete = False
 start_id = 0
 html_code = ''
+count_of_video = 0
 
 
 def start(message):
@@ -78,24 +79,12 @@ def get_video(message):
 def download_video(message):
     global Flag_Add
     global Flag_Priority
-    Bot.send_message(message.from_user.id, "Your video has searched")
-    print('downloading...')
-    with open('list.files', 'a', encoding='utf8') as f:
-        f.write(get_name_video(message.text) + '\n' + str(message.text) + '\n')
+    global count_of_video
 
-    try:
-        pytube.YouTube(message.text).streams \
-            .filter(file_extension='mp4') \
-            .first() \
-            .download('..\\Video\\')
-        print('...downloaded')
-    except FileExistsError:
-        Bot.send_message(message.from_user.id, "This video has already been added to the list")
-    user_markup = telebot.types.ReplyKeyboardMarkup(True)
-    user_markup.row('1', '2', '3', '4', '5')
-    Bot.send_message(message.from_user.id, "Set the priority of the video", reply_markup=user_markup)
-    Flag_Priority = True
-    Flag_Add = False
+
+
+
+
     Flag = True
     with open('list.files', 'r', encoding='utf8') as fio:
         with open('list.files', 'a', encoding='utf8') as f:
@@ -106,23 +95,32 @@ def download_video(message):
                 f.write(get_name_video(message.text) + '\n' + str(message.text) + '\n')
             else:
                 Bot.send_message(message.from_user.id, "You have already had that video")
+
     if Flag:
         Bot.send_message(message.from_user.id, "Your video has searched\nDownloading...")
+
         print('downloading...')
+
         new_name = message.text[-11:]
-        try:
-            pytube.YouTube(message.text).streams \
-                .filter(file_extension='mp4') \
-                .first() \
-                .download('..\\Video\\',new_name)
-            print('...downloaded')
-        except FileExistsError:
-            Bot.send_message(message.from_user.id, "This video has already been added to the list")
+
+        pytube.YouTube(message.text).streams \
+            .filter(file_extension='mp4') \
+            .first() \
+            .download('..\\Video\\', new_name)
+
+        print('...downloaded')
+
+        Bot.send_message(message.from_user.id, "This video has already been added to the list")
+
+        with open('priority', 'a', encoding='utf8') as fio:
+            fio.write(new_name + ' ')
         user_markup = telebot.types.ReplyKeyboardMarkup(True)
         user_markup.row('1', '2', '3', '4', '5')
         Bot.send_message(message.from_user.id, "Set the priority of the video", reply_markup=user_markup)
 
+        Flag_Priority = True
         Flag_Add = False
+        count_of_video += 1
 
 
 def other(message):
@@ -182,6 +180,7 @@ def user_checker(user_id):
 
 
 def add_new_admin(message, user_id):
+    global Flag_Admin
     if user_checker(user_id):
         Bot.send_message(message.from_user.id, "This user is already an admin ")
     else:
@@ -212,8 +211,6 @@ def delete_video_choise(message):
     list_video(message)
     global Flag_Delete
     Flag_Delete = True
-  #  for i in list:
-     #   if i[1] == message.text[1]:
 
 
 
@@ -224,3 +221,8 @@ def admin_checker(message):
                 return True
     return False
 
+
+def set_prioritys(message):
+    with open('priority', 'a', encoding='utf8') as fio:
+        fio.write(message.text + '\n')
+    start(message)

@@ -46,7 +46,7 @@ def handle_text(message):
             bussines.delete_video(message)
 
         elif bussines.Flag_Priority and re.match(r'^[1-5]$', message.text):
-            print("lol")
+            bussines.set_prioritys(message)
         else:
             bussines.other(message)
     else:
