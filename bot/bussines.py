@@ -90,9 +90,7 @@ def download_video(message):
     if Flag:
         Bot.send_message(message.from_user.id, "Your video has searched\nDownloading...")
         print('downloading...')
-
-        old_name = (get_name_video(message.text)[:-10])
-        new_name = message.text[32:]
+        new_name = message.text[-11:]
         try:
             pytube.YouTube(message.text).streams \
                 .filter(file_extension='mp4') \
