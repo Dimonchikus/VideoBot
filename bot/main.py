@@ -1,4 +1,5 @@
 import telebot
+import requests
 from bot import bussines
 from bot import constants
 import re
@@ -33,16 +34,17 @@ def handle_text(message):
             bussines.delete_video_choise(message)
 
         elif (str(message.text).__contains__('https://www.youtube.com')) and bussines.Flag_Add:
-                bussines.download_video(message)
+            bussines.download_video(message)
 
         elif bussines.Flag_Generate:
             bussines.get_video(message)
 
-        elif message.text == "add_new_admin":
+        elif message.text == "/add_new_admin":
             bussines.Bot.send_message(message.from_user.id, 'Send contact of new user')
             bussines.Flag_Admin = True
 
-        elif bussines.Flag_Delete and ((re.match(r'^/[0-9]',str(message.text))) or (re.match(r'^/[0-9][0-9]',str(message.text)))):
+        elif bussines.Flag_Delete and (
+                (re.match(r'^/[0-9]', str(message.text))) or (re.match(r'^/[0-9][0-9]', str(message.text)))):
             bussines.delete_video(message)
 
         elif bussines.Flag_Priority and re.match(r'^[1-5]$', message.text):
@@ -60,10 +62,12 @@ def handle_text(message):
 @bussines.Bot.message_handler(content_types=['contact'])
 def handle_text(message):
     if bussines.Flag_Admin:
-        bussines.add_new_admin(message, message.contact.user_id)
+        bussines.add_new_admin(message, message.contact.user_id, message.contact.first_name)
 
 
-try:
-    bussines.Bot.polling(none_stop=True, interval=0)
-except ConnectionError:
-    print("Aborted Connection")
+if __name__ == "__main__":
+    while True:
+        try:
+            bussines.Bot.polling(none_stop=True, interval=3)
+        except requests.exceptions.ConnectionError or requests.exceptions.ReadTimeout:
+            continue

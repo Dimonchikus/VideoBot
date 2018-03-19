@@ -23,7 +23,8 @@ deleted_video_id = ''
 def start(message):
     global Bot
     user_markup = telebot.types.ReplyKeyboardMarkup(True)
-    user_markup.row('Add Video', 'Generate Video','Videos\' list','Delete Video','stop')
+    user_markup.row('Add Video', 'Delete Video', 'stop')
+    user_markup.row('Generate Video', 'Videos\' list')
     Bot.send_message(message.from_user.id, '>>>', reply_markup=user_markup)
     print('start')
 
@@ -39,6 +40,11 @@ def generate_video(message):
 def add_video(message):
     global Bot
     global Flag_Add
+    global count_of_video
+
+    if count_of_video >= 20:
+        Bot.send_message(message.from_user.id,
+                         "If you add new video this video will delete\n" + constants.youtube + overflow()[1])
     Bot.send_message(message.from_user.id, "Add link to your video:")
     Flag_Add = True
     print('add video')
@@ -78,37 +84,55 @@ def get_video(message):
     print('get video')
 
 
+def delete_overflow(del_video):
+    os.remove(constants.videos + str(del_video[1]) + '.mp4')
+    f = open(constants.priority_list).readlines()
+    f2 = open(constants.videos_list).readlines()
+    f.pop(del_video[0])
+    f2.pop(del_video[0] * 2)
+    f2.pop((del_video[0] * 2))
+    with open(constants.priority_list, 'w') as F:
+        F.writelines(f)
+    with open(constants.videos_list, 'w') as F:
+        F.writelines(f2)
+
+
 def download_video(message):
     global Flag_Add
     global Flag_Priority
     global count_of_video
 
+    if count_of_video >= 20:
+        delete_overflow(overflow())
 
-
-
-
-    Flag = True
-    with open('list.files', 'r', encoding='utf8') as fio:
-        with open('list.files', 'a', encoding='utf8') as f:
+    flag = True
+    with open(constants.videos_list, 'r', encoding='utf8') as fio:
+        with open(constants.videos_list, 'a', encoding='utf8') as f:
             for i in fio:
                 if i.strip().__contains__(message.text):
-                    Flag = False
-            if Flag:
+                    flag = False
+            if flag:
                 f.write(get_name_video(message.text) + '\n' + str(message.text) + '\n')
             else:
                 Bot.send_message(message.from_user.id, "You have already had that video")
 
-    if Flag:
+    if flag:
         Bot.send_message(message.from_user.id, "Your video has searched\nDownloading...")
 
         print('downloading...')
 
+        Flag_Add = False
+
         new_name = message.text[-11:]
+
+        user_markup = telebot.types.ReplyKeyboardMarkup(True)
+        user_markup.row('1', '2', '3', '4', '5')
+        Bot.send_message(message.from_user.id, "Set the priority of the video", reply_markup=user_markup)
 
         pytube.YouTube(message.text).streams \
             .filter(file_extension='mp4') \
             .first() \
-            .download('..\\Video\\', new_name)
+            .download(constants.videos, new_name)
 
         print('...downloaded')
 
@@ -116,13 +140,23 @@ def download_video(message):
 
         with open('priority', 'a', encoding='utf8') as fio:
             fio.write(new_name + ' ')
-        user_markup = telebot.types.ReplyKeyboardMarkup(True)
-        user_markup.row('1', '2', '3', '4', '5')
-        Bot.send_message(message.from_user.id, "Set the priority of the video", reply_markup=user_markup)
 
         Flag_Priority = True
-        Flag_Add = False
         count_of_video += 1
+
+
+def overflow():
+    with open(constants.priority_list) as fis:
+        list_of_v = fis.readlines()
+    del_video = [len(list_of_v) - 1, list_of_v[len(list_of_v) - 1].split()[0],  # [numb, video_id, priority]
+                 list_of_v[len(list_of_v) - 1].split()[1]]
+    for i in range(len(list_of_v))[::-1]:
+        if i == 0:
+            break
+        if int(del_video[2]) <= int(list_of_v[i - 1].split()[1]):
+            del_video = [i - 1, list_of_v[i - 1].split()[0], list_of_v[i - 1].split()[1]]
+    print(del_video)
+    return del_video
 
 
 def other(message):
@@ -139,7 +173,7 @@ def other(message):
                 Flag_Next = False
                 Bot.send_message(message.from_user.id, 'You have reached the limit video ')
             else:
-                g_url = 'https://www.youtube.com/watch?v=' + id
+                g_url = constants.youtube + id
                 Bot.send_message(message.from_user.id, g_url)
             print('next')
 
@@ -165,7 +199,7 @@ def get_name_video(url):
     html_tree = lxml.html.fromstring(r.text)
     path = ".//title"
     name_video = html_tree.xpath(path)[0]
-    return str(name_video.text_content()).replace(' - YouTube','')
+    return str(name_video.text_content()).replace(' - YouTube', '')
 
 
 def user_checker(user_id):
@@ -173,7 +207,7 @@ def user_checker(user_id):
     if user_id == constants.gorbenko or user_id == constants.rumsha:
         rez = True
     else:
-        with open('..\\admins') as fio:
+        with open(constants.admins) as fio:
             for line in fio:
                 user_id = str(user_id)
                 if user_id == line.strip():
@@ -181,17 +215,18 @@ def user_checker(user_id):
     return rez
 
 
-def add_new_admin(message, user_id):
+def add_new_admin(message, user_id, first_name):
     global Flag_Admin
+    print(user_id, first_name)
     if user_checker(user_id):
         Bot.send_message(message.from_user.id, "This user is already an admin ")
     else:
         if user_id is None:
-            Bot.send_message(message.from_user.id, "This user is an admin already")
+            Bot.send_message(message.from_user.id, "This user is not registered in Telegram")
             return
-        with open('..\\.admins', 'a') as fos:
+        with open(constants.admins, 'a') as fos:
             fos.write(str(user_id) + "\n")
-    Bot.send_message(message.from_user.id, "The contact has been added to the administrator list")
+        Bot.send_message(message.from_user.id, "The contact has been added to the administrator list")
     Flag_Admin = False
 
 
@@ -199,25 +234,24 @@ def list_video(message):
     list_of_video = ''
     j = int(2)
     k = 1
-    with open('list.files', 'r', encoding='utf8') as f:
-         for i in f:
+    with open(constants.videos_list, 'r', encoding='utf8') as f:
+        for i in f:
             if int(j) % 2 == 0:
-               list_of_video += '/' + str(k) + ' ' + i.strip() + '\n'
-               k += 1
+                list_of_video += '/' + str(k) + ' ' + i.strip() + '\n'
+                k += 1
             j += 1
     Bot.send_message(message.from_user.id, list_of_video)
 
 
 def delete_video_choise(message):
-    Bot.send_message(message.from_user.id,'Choise video for removing:')
+    Bot.send_message(message.from_user.id, 'Choise video for removing:')
     list_video(message)
     global Flag_Delete
     Flag_Delete = True
 
 
-
 def admin_checker(message):
-    with open('..\\admins') as fio:
+    with open(constants.admins) as fio:
         for line in fio:
             if message.from_user.id == line.strip():
                 return True
@@ -226,15 +260,15 @@ def admin_checker(message):
 
 def delete_video(message):
     global deleted_video_id
-    number = int(message.text[1])*2
-    iterator = 1;
-    with open('list.files', 'r', encoding='utf8') as f:
+    number = int(message.text[1]) * 2
+    iterator = 1
+    with open(constants.videos_list, 'r', encoding='utf8') as f:
         for i in f:
-             if(iterator == number):
-                 Bot.send_message(message.from_user.id, 'Remove this video?')
-                 deleted_video_id = i.strip()
-                 Bot.send_message(message.from_user.id,deleted_video_id)
-             iterator += 1
+            if (iterator == number):
+                Bot.send_message(message.from_user.id, 'Remove this video?')
+                deleted_video_id = i.strip()
+                Bot.send_message(message.from_user.id, deleted_video_id)
+            iterator += 1
     global Flag_Final_Removing
     Flag_Final_Removing = True
     global Flag_Delete
@@ -246,27 +280,40 @@ def delete_video(message):
 
 def final_removing(message):
     global deleted_video_id
+    global count_of_video
     list_of_video = list_video(message)
     list_of_new_video = ''
     if (str(message.text) == 'Delete'):
         Bot.send_message(message.from_user.id, 'Removing')
-        os.remove('..\\Video\\' + str(deleted_video_id[-11:]) + '.mp4')
+        os.remove(constants.videos + str(deleted_video_id[-11:]) + '.mp4')
         for i in list_of_video:
             s = i.strip()
             if not ((s == get_name_video(deleted_video_id)) or (s == deleted_video_id)):
-                 list_of_new_video += i + '\n'
-            with open('list.files', 'w', encoding='utf8') as f:
-                f.write( list_of_new_video)
+                list_of_new_video += i + '\n'
+            with open(constants.videos_list, 'w', encoding='utf8') as f:
+                f.write(list_of_new_video)
         Bot.send_message(message.from_user.id, 'Done')
         start(message)
     elif (str(message.text) == 'Leave'):
         start(message)
     global Flag_Final_Removing
     Flag_Final_Removing = False
-    return deleted_video_id[-11:]
+
+    new_priority = ''
+
+    with open(constants.priority_list) as fos:
+        for line in fos:
+            if line.split()[0] == deleted_video_id[-11:]:
+                pass
+            else:
+                new_priority += line + '\n'
+    with open(constants.priority_list, 'w') as fis:
+        fis.write(new_priority)
+
+    count_of_video -= 1
 
 
 def set_prioritys(message):
-    with open('priority', 'a', encoding='utf8') as fio:
+    with open(constants.priority_list, 'a', encoding='utf8') as fio:
         fio.write(message.text + '\n')
     start(message)

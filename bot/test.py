@@ -1,5 +1,3 @@
-import os
+from bot import bussines
 
-old_name = '1'
-new_name = '2'
-os.renames('..\\Video\\' + old_name + '.mp4', '..\\Video\\' + new_name + '.mp4')
+bussines.delete_overflow([0, '2vjPBrBU-TM', '1'])
