@@ -146,10 +146,14 @@ def download_video(id, text):
             fio.write(new_name + ' ')
 
         user_markup = telebot.types.ReplyKeyboardMarkup(True)
-        user_markup.row('⭐️⭐️⭐️⭐️⭐️', '⭐️⭐️⭐️⭐️')
-        user_markup.row('⭐️⭐️⭐️️', '⭐️⭐️', '⭐️')
+        user_markup.row('⭐⭐⭐⭐⭐', '⭐⭐⭐⭐')
+        user_markup.row('⭐⭐⭐', '⭐⭐', '⭐')
         Bot.send_message(id, "Set the priority of the video", reply_markup=user_markup)
-
+        Bot.send_message(id, "⭐⭐⭐⭐⭐ - very important video (display immediately)\n"
+                             "⭐⭐⭐⭐ - important video (display next)\n"
+                             "⭐⭐⭐ - medium importance video (display today)\n"
+                             "⭐⭐ - usual video (display yesterday)\n"
+                             "⭐ - low importance video (display in this week)\n")
         Flag_Priority = True
         count_of_video += 1
 
@@ -309,8 +313,10 @@ def final_removing(id, text):
 
 
 def set_prioritys(id, text):
-    text = str(text).split().__len__() + 1
+    global Flag_Priority
+    text = str(text).__len__()
 
     with open(constants.priority_list, 'a', encoding='utf8') as fio:
         fio.write(str(text) + '\n')
     start(id)
+    Flag_Priority = False
