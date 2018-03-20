@@ -52,7 +52,7 @@ def handle_text(message):
                 (re.match(r'^/([0-9]){0,2}', str(message.text)))):
             bussines.delete_video(message.from_user.id, message.text)
 
-        elif bussines.Flag_Priority and re.match(r'^[1-5]$', message.text):
+        elif bussines.Flag_Priority and re.match(r'^⭐️{0,5}$', message.text):
             bussines.set_prioritys(message.from_user.id, message.text)
 
         elif bussines.Flag_Final_Removing:

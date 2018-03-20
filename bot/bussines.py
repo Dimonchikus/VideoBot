@@ -91,14 +91,14 @@ def delete_overflow(del_video):
     id_video = str(del_video[1])
     numb_video = int(del_video[0])
     os.remove(constants.videos + id_video + '.mp4')
-    f = open(constants.priority_list).readlines()
-    f2 = open(constants.videos_list).readlines()
+    f = open(constants.priority_list, encoding='utf8').readlines()
+    f2 = open(constants.videos_list, encoding='utf8').readlines()
     f.pop(numb_video)
     f2.pop(numb_video * 2)
     f2.pop((numb_video * 2))
-    with open(constants.priority_list, 'w') as F:
+    with open(constants.priority_list, 'w', encoding='utf8') as F:
         F.writelines(f)
-    with open(constants.videos_list, 'w') as F:
+    with open(constants.videos_list, 'w', encoding='utf8') as F:
         F.writelines(f2)
 
 
@@ -146,7 +146,8 @@ def download_video(id, text):
             fio.write(new_name + ' ')
 
         user_markup = telebot.types.ReplyKeyboardMarkup(True)
-        user_markup.row('1', '2', '3', '4', '5')
+        user_markup.row('⭐️⭐️⭐️⭐️⭐️', '⭐️⭐️⭐️⭐️')
+        user_markup.row('⭐️⭐️⭐️️', '⭐️⭐️', '⭐️')
         Bot.send_message(id, "Set the priority of the video", reply_markup=user_markup)
 
         Flag_Priority = True
@@ -154,7 +155,7 @@ def download_video(id, text):
 
 
 def overflow():
-    with open(constants.priority_list) as fis:
+    with open(constants.priority_list, encoding='utf8') as fis:
         list_of_v = fis.readlines()
     del_video = [len(list_of_v) - 1, list_of_v[len(list_of_v) - 1].split()[0],  # [numb, video_id, priority]
                  list_of_v[len(list_of_v) - 1].split()[1]]
@@ -215,7 +216,7 @@ def user_checker(user_id):
     if user_id == constants.gorbenko or user_id == constants.rumsha:
         rez = True
     else:
-        with open(constants.admins) as fio:
+        with open(constants.admins, encoding='utf8') as fio:
             for line in fio:
                 user_id = str(user_id)
                 if user_id == line.strip():
@@ -232,7 +233,7 @@ def add_new_admin(id, user_id, first_name):
         if user_id is None:
             Bot.send_message(id, "This user is not registered in Telegram")
             return
-        with open(constants.admins, 'a') as fos:
+        with open(constants.admins, 'a', encoding='utf8') as fos:
             fos.write(str(user_id) + "\n")
         Bot.send_message(id, "The contact has been added to the administrator list")
     Flag_Admin = False
@@ -284,17 +285,17 @@ def final_removing(id, text):
         Bot.send_message(id, 'Removing')
         os.remove(constants.videos + str(deleted_video_id[-12:]).strip() + '.mp4')
 
-        f = open(constants.videos_list).readlines()
-        f.pop(number*2-2)
+        f = open(constants.videos_list, encoding='utf8').readlines()
+        f.pop(number * 2 - 2)
         f.pop(number * 2 - 2)
 
-        with open(constants.videos_list, 'w') as F:
+        with open(constants.videos_list, 'w', encoding='utf8') as F:
             F.writelines(f)
 
-        f = open(constants.priority_list).readlines()
+        f = open(constants.priority_list, encoding='utf8').readlines()
         f.pop(number - 1)
 
-        with open(constants.priority_list, 'w') as F:
+        with open(constants.priority_list, 'w', encoding='utf8') as F:
             F.writelines(f)
 
         Bot.send_message(id, 'Done')
@@ -308,6 +309,8 @@ def final_removing(id, text):
 
 
 def set_prioritys(id, text):
+    text = str(text).split().__len__() + 1
+
     with open(constants.priority_list, 'a', encoding='utf8') as fio:
-        fio.write(text + '\n')
+        fio.write(str(text) + '\n')
     start(id)
